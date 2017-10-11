@@ -1,0 +1,91 @@
+---
+title: "Lab 4"
+author: "Frank Tolbert"
+date: "October 10, 2017"
+output: html_document
+---
+####Lab 4: Contiguous Probability
+###Question 1: The number of points scored by each team in a tournament is normally distributed, with mean μ = 32 and standard deviation σ = 7.What is the probability of:
+##Part A: A team scoring 20 points or fewer? Plot the density function and shade the area.
+```{r}
+pnorm(20, mean = 32, sd = 7)
+```
+```{r}
+cordx <- c(11, seq(11, 20, 0.01), 20)
+cordy <- c(0, dnorm(seq(11, 20, 0.01),mean = 32, sd = 7), 0)
+curve(dnorm(x, mean = 32, sd = 7), from = 11, to = 53 ,main="20 Points or Fewer Probability", lwd=2)
+polygon(cordx,cordy,col='green')
+```
+
+#Part B: A team scoring more than 35 points? Plot the density function and shade the area.
+```{r}
+cordx <- c(35, seq(35, 53, 0.01), 53)
+cordy <- c(0, dnorm(seq(35, 53, 0.01),mean = 32, sd = 7), 0)
+curve(dnorm(x, mean = 32, sd = 7), from = 11, to = 53 ,main="35 Points or Greater Probability", lwd=2)
+polygon(cordx,cordy,col='green')
+```
+##Part C: A team scoring between 20 and 40 points? Plot the density function and shade the area.
+```{r}
+cordx <- c(20, seq(20, 40, 0.01), 40)
+cordy <- c(0, dnorm(seq(20, 40, 0.01),mean = 32, sd = 7), 0)
+curve(dnorm(x, mean = 32, sd = 7), from = 11, to = 53 ,main="20 to 40 Points  Probability", lwd=2)
+polygon(cordx,cordy,col='green')
+```
+
+###Question 2: The number of comments per post on a social media site is exponentially distributed, with the average post receiving ten comments. What percentage of posts get:
+##Part A: Fewer than three comments?  Plot the density function and shade the area.
+```{r}
+x <- pexp(3,rate = .1, lower.tail = TRUE)
+curve(dexp(x,.1),from = 0,to = 100,lwd=2,main="Fewer than 3 comments")
+```
+##Part B: More than 20 comments? Plot the density function and shade the area. 
+```{r}
+curve(dexp(x,.1),from = 0,to = 100,lwd=2,col="green")
+```
+##Part C: Between five and ten comments? Plot the density function and shade the area.
+```{r}
+curve(dexp(x,.1),from = 0,to = 100,lwd=2,col="green")
+```
+
+###Question 3: Basic raster creation and calculation:
+##Part A: Create a first raster (30 rows × 30 columns) and assign values to the raster based on random values from a uniform distribution. Plot the raster and the histogram.
+```{r}
+library(raster)
+ras <- raster(nrows=30,ncols=30,xmn=0,xmx=30,ymn=0,ymx=30)
+ras[] <- runif(ncell(ras))
+plot(ras)
+```
+```{r}
+hist(ras)
+```
+##Part B: Create a second raster (30 rows × 30 columns) and assign values to the raster based on random values from a normal distribution. Plot the raster and the histogram.
+```{r}
+library(raster)
+ras2 <- raster(nrows=30,ncols=30,xmn=0,xmx=30,ymn=0,ymx=30)
+ras2[] <- rnorm(ncell(ras))
+plot(ras2)
+```
+```{r}
+hist(ras2)
+```
+##Part C: Create a third raster (30 rows × 30 columns) and assign values to the raster based on cell-by-cell addition of the first raster and the second raster.  Plot the raster and the histogram.
+```{r}
+xras <- merge(ras,ras2)
+plot(xras)
+```
+```{r}
+hist(xras)
+```
+##Part D: Calculate the mean value of the third raster. Reclassify the third raster into a binary image: 1 (cell value > mean value) and 0 (cell value <= mean value).  Save the reclassified image to your working directory as a TIFF image.
+```{r}
+cellStats(xras,"mean")
+```
+```{r}
+cellStats(ras,"mean") 
+xras[1,1] <- 0 
+xras[xras > 0.5] <- 1 
+ras2 <- xras + xras * 30 
+install.packages(rgdal)
+writeRaster(ras2,filename = "combinedraster.tif", overwrite=TRUE)
+```
+
